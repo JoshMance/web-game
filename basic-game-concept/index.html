@@ -4,13 +4,27 @@
 <head>
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            for (let x = 0; x < 64; x++) {
+                $('.tiles-grid').append('<div class="tile"><div>');
+            }
+            for (let x = 0; x < 64; x++) {
+                var e = $('.tiles-grid').get(x);
+                console.log(e);
+            }
+        });
+
+    </script>
 </head>
 <body>
-
-    <div class="game-board"></div>
-    <div class="board-tile"></div>
-    <div class="board-tile"></div>
-    <div class="board-tile"></div>
+    <div class="game-container">
+        <div class="tiles-grid"></div>
+        <div class="tokens-grid"></div>
+    </div>
+        
+        
+    
     
     
 </body>
