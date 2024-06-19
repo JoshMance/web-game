@@ -5,9 +5,12 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
+
+    function get_valid_moves(token_index) {
+        // code to be executed
+    }
+
         $(document).ready(function() {
-
-
 
             // The game visual is a grid of tile divs. Tokens are children of these divs 
             // Token movement involves:
@@ -15,31 +18,23 @@
             //     2. Appending the target token to its new tile and making it invisible
             //     3. Animating the movement token sliding to the new tile, then deleting it
             //     4. Showing the target token
-            // const tileOffset = $('.tiles-grid').children().last().offset();
-            //         console.log(tileOffset);
 
             // Setting up the game-container with tiles and tokens
-            for (let index = 0; index < 100; index++) {
-
-                jQuery('<div>', {
-                    id: index,
-                    class: 'tile',
-                }).appendTo('.tiles-grid');
-
-                if (index < 20 || index >= 80) { 
-                    jQuery('<div>', {
-                        class: 'token light',
-                    }).appendTo( $('.tiles-grid').children().last());
-                }
-                else {
-                    jQuery('<div>', {
-                    class: 'empty-tile-space',
-                    }).appendTo( $('.tiles-grid').children().last());
-                }
+            for (let index = 0; index < 64; index++) {
                 
+                $('.tiles-grid').append($('<div>', {id: index, class: 'tile'}))
 
+                var overlay_class = 'empty-tile-space'
+                if (index < 16)  {overlay_class = 'token light'}
+                if (index >= 48) {overlay_class = 'token dark'}
+                    
+                $('.tiles-grid').children().last().append($('<div>', {class: overlay_class, text: index}))
+            
             }
 
+
+            // const tileOffset = $('.tiles-grid').children().last().offset();
+            //         console.log(tileOffset);
         });
 
     </script>
@@ -48,10 +43,8 @@
     <div class="game-container">
         <div class="tiles-grid"></div>
     </div>
-        
-        
-    
     
     
 </body>
 </html> 
+

@@ -16,35 +16,32 @@ body {
     z-index: 0;
     padding-top: 100%;
     position: relative;
-    border: 1px solid #2D5A184B;
+    border: 1px solid #D05F0E;
     padding: inherit;
     text-align: center;
     background-image: url(./sandpaper.png);
+}
+
+.token {
+    position: relative;
+    padding: inherit;
+    background-color: #000000;
+    border-radius: 40%;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
     &.light {
-        background-color: #FFFFFF50;
+        background-color: #882D2D50;
     }
     &.dark {
         background-color: #000000;
     }
 }
 
-.token {
-    position: relative;
-    padding: inherit;
-    background-color: #363FB9;
-    border-radius: 40%;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-    &.token:hover {
-        background-color: #CD3333;
-    }
-}
-
 .tiles-grid {
     display: inline-grid;
     position: relative;
-    grid-template-columns: repeat(10, auto);
+    grid-template-columns: repeat(8, auto);
     grid-template-rows: repeat(10, auto);
-    background-color: #3BB12C;
+    background-color: #7C7565
     background-image: url(./sandpaper.png);
     padding: 20px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
