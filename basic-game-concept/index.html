@@ -7,29 +7,36 @@
     <script>
         $(document).ready(function() {
 
+
+
             // The game visual is a grid of tile divs. Tokens are children of these divs 
             // Token movement involves:
             //     1. Animating a 'movement' token over the target token
             //     2. Appending the target token to its new tile and making it invisible
             //     3. Animating the movement token sliding to the new tile, then deleting it
             //     4. Showing the target token
+            // const tileOffset = $('.tiles-grid').children().last().offset();
+            //         console.log(tileOffset);
 
             // Setting up the game-container with tiles and tokens
-            for (let index = 0; index < 64; index++) {
+            for (let index = 0; index < 100; index++) {
+
                 jQuery('<div>', {
                     id: index,
                     class: 'tile',
                 }).appendTo('.tiles-grid');
 
-                if (index < 16 || index >= 48) { 
-                    const tileOffset = $('.tiles-grid').children().last().offset();
-                    console.log(tileOffset);
-
+                if (index < 20 || index >= 80) { 
                     jQuery('<div>', {
-                        id: 'light_token',
-                        class: 'token',
+                        class: 'token light',
                     }).appendTo( $('.tiles-grid').children().last());
                 }
+                else {
+                    jQuery('<div>', {
+                    class: 'empty-tile-space',
+                    }).appendTo( $('.tiles-grid').children().last());
+                }
+                
 
             }
 
