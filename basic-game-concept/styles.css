@@ -7,7 +7,7 @@ body {
     grid-auto-flow: column;
   }
 
-.empty-tile-space {
+.empty-space {
     position: relative;
     padding: inherit;
 }
