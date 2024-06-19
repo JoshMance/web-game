@@ -6,13 +6,33 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
-            for (let x = 0; x < 64; x++) {
-                $('.tiles-grid').append('<div class="tile"><div>');
+
+            // The game visual is a grid of tile divs. Tokens are children of these divs 
+            // Token movement involves:
+            //     1. Animating a 'movement' token over the target token
+            //     2. Appending the target token to its new tile and making it invisible
+            //     3. Animating the movement token sliding to the new tile, then deleting it
+            //     4. Showing the target token
+
+            // Setting up the game-container with tiles and tokens
+            for (let index = 0; index < 64; index++) {
+                jQuery('<div>', {
+                    id: index,
+                    class: 'tile',
+                }).appendTo('.tiles-grid');
+
+                if (index < 16 || index >= 48) { 
+                    const tileOffset = $('.tiles-grid').children().last().offset();
+                    console.log(tileOffset);
+
+                    jQuery('<div>', {
+                        id: 'light_token',
+                        class: 'token',
+                    }).appendTo( $('.tiles-grid').children().last());
+                }
+
             }
-            for (let x = 0; x < 64; x++) {
-                var e = $('.tiles-grid').get(x);
-                console.log(e);
-            }
+
         });
 
     </script>
@@ -20,7 +40,6 @@
 <body>
     <div class="game-container">
         <div class="tiles-grid"></div>
-        <div class="tokens-grid"></div>
     </div>
         
         

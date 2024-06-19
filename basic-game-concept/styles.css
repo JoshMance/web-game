@@ -9,25 +9,30 @@ body {
 
 .tile {
     z-index: 0;
+    position: relative;
     border: 1px solid #C4AA88;
-    padding: 40px;
+    padding: inherit;
     text-align: center;
     background-color: #f2d2a9;
     background-image: url(./sandpaper.png);
-    &.tile:hover {
+    box-sizing: border-box;
+    flex-basis: calc(25% - 10px);
+}
+
+.token {
+    position: relative;
+    padding: inherit;
+    background-color: #7A0000;
+    border-radius: 40%;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    &.token:hover {
         background-color: #CD8A33;
     }
 }
 
-.token {
-    z-index: 1;
-    padding: 40px;
-    background-color: #000000;
-    border-radius: 50%;
-}
-
 .tiles-grid {
     display: inline-grid;
+    position: relative;
     grid-template-columns: auto auto auto auto auto auto auto auto;
     background-color: #f2d2a9;
     background-image: url(./sandpaper.png);
