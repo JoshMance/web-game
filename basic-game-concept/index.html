@@ -5,33 +5,14 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script>
-        const SIZE         = 8;
-        const SIZE_SQUARED = SIZE*SIZE;
+        
+        var SIZE                 = 8;
+        var SIZE_SQUARED         = SIZE*SIZE;
+        
+        var focused_tile_index  = null;
 
-        function get_valid_move_indexes(tile_index) {
-            var tiles          = $('.tiles-grid').children();
-            var valid_indexes  = new Set();
-            var col_moves      = new Array(-1*SIZE, SIZE); 
-            var row_moves      = new Array(-1, 1); 
-    
-            for (move in col_moves) {
-                var index = tile_index + parseInt(move);
-                while (index >= 0 && index < SIZE_SQUARED) {
-                    console.log(tiles[index].children[0].classList);
-                    if (tiles[index].children[0].classList.contains('empty-space')) {
-                        valid_indexes.add(index);
-                    }
-                    else {
-                        break;
-                    }
-                    index += parseInt(move);
-                }
-            }
-            return valid_indexes;
-        }
 
-        $(document).ready(function() {
-
+        function setup_game_board() {
             // The game visual is a grid of tile divs. Tokens are children of these divs 
             // Token movement involves:
             //     1. Animating a 'movement' token over the target token
@@ -41,23 +22,108 @@
 
             // Setting up the game-container with tiles and tokens
             for (let index = 0; index < 64; index++) {
-                
                 $('.tiles-grid').append($('<div>', {id: index, class: 'tile'}))
-
                 var overlay_class = 'empty-space'
                 if (index < 16)  {overlay_class = 'token light'}
                 if (index >= 48) {overlay_class = 'token dark'}
-                    
-                $('.tiles-grid').children().last().append($('<div>', {class: overlay_class, text: index}))
-            
+                $('.tiles-grid').children().last().append($('<div>', {class: overlay_class}))
             }
+        }
 
-            var indexes = get_valid_move_indexes(35);
-            console.log(indexes);
+        function move_token(start_index, dest_index) {
+            var $start_tile = $('.tiles-grid > #' + start_index);
+            var $dest_tile  = $('.tiles-grid > #' + dest_index);
+
+            var $start_overlay = $start_tile.children().detach();
+            var $dest_overlay  = $dest_tile.children().detach();
+
+            $start_tile.append($dest_overlay);
+            $dest_tile.append($start_overlay);
+        }
 
 
-            // const tileOffset = $('.tiles-grid').children().last().offset();
-            //         console.log(tileOffset);
+        function remove_all_highlights() {
+            let tiles = Array.from($('.tiles-grid').children());
+            for (i in tiles) {
+                let tile = tiles[i];
+                if (tile.classList.contains('highlight-selected')) {
+                    tile.classList.remove('highlight-selected');
+                }
+                if (tile.classList.contains('highlight-neighbour')) {
+                    tile.classList.remove('highlight-neighbour');
+                }
+
+            }
+        }
+
+        function highlight_moves(tile_index, move_indexes) {
+            let tiles = $('.tiles-grid').children();
+            tiles[tile_index].classList.add('highlight-selected');
+            for (i in move_indexes) {
+                var index = move_indexes[i];
+                tiles[index].classList.add('highlight-neighbour');
+            }
+        }
+
+
+        // Returns the indexes of all valid moves from the given tile
+        function get_valid_move_indexes(tile_index) {
+
+            var tiles          = $('.tiles-grid').children();
+            var valid_indexes  = new Set();
+            var col_moves      = new Array(SIZE, -SIZE); 
+            var row_moves      = new Array(-1, 1); 
+    
+            for (i in col_moves) {
+                let move = parseInt(col_moves[i]);
+                var index = tile_index + move;
+
+                while (index >= 0 && index < SIZE_SQUARED) {
+                    if (tiles[index].children[0].classList.contains('empty-space')) {
+                        valid_indexes.add(index);
+                    }
+                    else {
+                        break;
+                    }
+                    index += move;
+                }
+            }
+            return Array.from(valid_indexes);
+        }
+
+
+        $(document).ready(function() {
+            setup_game_board();
+
+            $('.tile').on('click', function() {
+                var target_tile_index = parseInt(this.id);
+                var move_indexes = get_valid_move_indexes(target_tile_index);
+                
+                let tile = $('.tiles-grid').children()[target_tile_index];
+                var is_empty_space = tile.children[0].classList.contains('empty-space');
+
+                if (focused_tile_index == null) {
+                    if (!is_empty_space) {
+                        focused_tile_index = target_tile_index;
+                        highlight_moves(target_tile_index, move_indexes);
+                    }
+                }
+                else {
+                    remove_all_highlights();
+                    if (!is_empty_space) {
+                        focused_tile_index = target_tile_index;
+                        highlight_moves(target_tile_index, move_indexes);
+                    }
+                    else {
+                        if (true) {
+                            move_token(focused_tile_index, target_tile_index);
+                            focused_tile_index = null;
+                        }
+                    }
+                }
+
+                
+            });
         });
 
     </script>
