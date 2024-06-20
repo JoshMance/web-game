@@ -10,6 +10,7 @@
         var SIZE_SQUARED         = SIZE*SIZE;
         var focused_tile_index  = null;
         var focused_tile_moves  = null;
+        var overlay_class = 'empty-space';
 
         function setup_game_board() {
             // The game visual is a grid of tile divs. Tokens are children of these divs 
@@ -23,12 +24,57 @@
             for (let index = 0; index < SIZE_SQUARED; index++) {
                 $('.tiles-grid').append($('<div>', {id: index, class: 'tile'}))
                 var overlay_class = 'empty-space'
-                if (index < 16)  {overlay_class = 'token player_2'}
-                if (index >= 48) {overlay_class = 'token player_1'}
+                if (index < 16)  {overlay_class = 'token user'}
+                if (index >= 48) {overlay_class = 'token opponent'}
                 $('.tiles-grid').children().last().append($('<div>', {class: overlay_class}))
             }
         }
 
+        function remove_trapped_tokens() {
+            var trapped_indexes_set = new Set();
+            var $tiles = $('.tiles-grid').children();
+
+            for (let i = 0; i < SIZE_SQUARED; i++) {
+                if (i > SIZE && i < (SIZE_SQUARED - SIZE)) {
+                    if (i % SIZE >= 1 && i % SIZE < SIZE-1) {
+
+                        var left  = $tiles[i-1].children[0].className.toString();
+                        var mid   = $tiles[i].children[0].className.toString();
+                        var right = $tiles[i+1].children[0].className.toString();
+                        var bot   = $tiles[i-SIZE].children[0].className.toString();
+                        var top   = $tiles[i+SIZE].children[0].className.toString();
+
+                        var row_line = (left === right) && 
+                                       (left !== mid) && 
+                                       (left !== 'empty-space') &&
+                                       (mid !== 'empty-space');
+                        
+                        var col_line = (bot === top) && 
+                                       (bot !== mid) && 
+                                       (bot !== 'empty-space') &&
+                                       (mid !== 'empty-space');
+
+                        if (row_line || col_line) {
+                            trapped_indexes_set.add(i);
+                        }                        
+                        
+
+                    }
+                }
+            }
+            for (index of Array.from(trapped_indexes_set)) {
+                if (index === focused_tile_index) {
+                    focused_tile_index = null;
+                    focused_tile_moves  = null;
+                }
+                $('.tiles-grid').children()[index].replaceChildren();
+                $('.tiles-grid').get(index).append($('<div>', {class: 'empty-space'}))
+
+
+            }
+
+
+        }
 
         function move_token(start_index, dest_index) {
 
@@ -120,20 +166,21 @@
                 if (focused_tile_index == null) {
                     if (!is_empty_space) {
                         focused_tile_index = target_tile_index;
-                        focused_tile_moves = get_valid_move_indexes(focused_tile_index);
-                        highlight_moves(focused_tile_index, focused_tile_moves);
+                        // focused_tile_moves = get_valid_move_indexes(focused_tile_index);
+                        // highlight_moves(focused_tile_index, focused_tile_moves);
                     }
                 }
                 else {
                     remove_all_highlights();
+                    focused_tile_moves = get_valid_move_indexes(focused_tile_index);
                     if (!is_empty_space) {
                         focused_tile_index = target_tile_index;
-                        highlight_moves(target_tile_index, focused_tile_moves);
+                        // highlight_moves(target_tile_index, focused_tile_moves);
                     }
                     else {
                         if (focused_tile_moves.includes(target_tile_index)) {
-
                             move_token(focused_tile_index, target_tile_index);
+                            remove_trapped_tokens();
                             focused_tile_index = null;
                         }
                     }
