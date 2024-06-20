@@ -24,13 +24,17 @@
             for (let index = 0; index < 64; index++) {
                 $('.tiles-grid').append($('<div>', {id: index, class: 'tile'}))
                 var overlay_class = 'empty-space'
-                if (index < 16)  {overlay_class = 'token light'}
-                if (index >= 48) {overlay_class = 'token dark'}
+                if (index < 16)  {overlay_class = 'token player_2'}
+                if (index >= 48) {overlay_class = 'token player_1'}
                 $('.tiles-grid').children().last().append($('<div>', {class: overlay_class}))
             }
         }
 
         function move_token(start_index, dest_index) {
+
+            let sound_sfx = new Audio("./move_sfx.wav");
+            sound_sfx.play();
+
             var $start_tile = $('.tiles-grid > #' + start_index);
             var $dest_tile  = $('.tiles-grid > #' + dest_index);
 

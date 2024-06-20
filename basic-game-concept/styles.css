@@ -5,28 +5,31 @@ body {
     place-content: center;
     place-items: center;
     grid-auto-flow: column;
+    background-color: #FFFFFF;
+    background-image: url(./sandpaper.png);
   }
 
 .empty-space {
     position: relative;
     padding: inherit;
+    border: 3px double #AF121700;
 }
 
 .tile {
     z-index: 0;
     padding-top: 100%;
     position: relative;
-    border: 1px solid #85483876;
+    border: 1px solid #85473829;
     padding: inherit;
     text-align: center;
     background-image: url(./sandpaper.png);
-    background-color: #CDC3AC62;
+    background-color: #DEAE8B;
     &.highlight-selected {
-        background-color: #932009;
+        background-color: #F1B1847E
     }
-    &.highlight-neighbour {
-        background-color: #B74736;
 
+    &.highlight-neighbour {
+        background-color: #EDD4C2D7;
     }
 }
 
@@ -34,12 +37,15 @@ body {
     position: relative;
     padding: inherit;
     border-radius: 50%;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 3px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-    &.light {
-        background-color: #2F6DD9EA;
-    }
-    &.dark {
+    opacity: 1 important;
+    box-shadow: rgba(60, 64, 67, 0.3) 7px 3px 5px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    &.player_1 {
         background-color: #AF1217AE;
+        border: 3px double #AF1217AE;
+    }
+    &.player_2 {
+        background-color: #2F6DD9EA;
+        border: 2px groove #2F6DD9EA;
     }
 }
 
@@ -48,11 +54,11 @@ body {
     position: relative;
     grid-template-columns: repeat(8, auto);
     grid-template-rows: repeat(10, auto);
-    background-color: #edc9AF;
-    border-color: #edc9AF;
+    background-color: #FAF8F462;
+    border-radius: 1%;
     background-image: url(./sandpaper.png);
     padding: 20px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    box-shadow: 0 6px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.20);
 }
   
   
