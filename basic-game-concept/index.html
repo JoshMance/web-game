@@ -2,195 +2,180 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script>
+<link rel="stylesheet" href="styles.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>   
+    $(document).ready(function() {
         
-        var SIZE                 = 8;
-        var SIZE_SQUARED         = SIZE*SIZE;
-        var focused_tile_index  = null;
-        var focused_tile_moves  = null;
-        var overlay_class = 'empty-space';
+        var SIZE            = 8;             // The grid size
+        var SIZE_SQUARED    = 64;
+        var NUM_SETUP_ROWS  = 2;
+        var $focused_tile   = null;          // A reference to the most recent
+                                            // tile selected by the user 
+        var focused_moves   = null;          // A list of the 
+        var no_piece_class  = 'empty-space'; // 
+    
+        var $game_tiles     = Array(SIZE)    // A 2d array holding references to
+                            .fill()          // each game tile jquery object
+                            .map(() => Array(SIZE).fill(null));
+        
 
-        function setup_game_board() {
-            // The game visual is a grid of tile divs. Tokens are children of these divs 
-            // Token movement involves:
-            //     1. Animating a 'movement' token over the target token
-            //     2. Appending the target token to its new tile and making it invisible
-            //     3. Animating the movement token sliding to the new tile, then deleting it
-            //     4. Showing the target token
-
-            // Setting up the game-container with tiles and tokens
-            for (let index = 0; index < SIZE_SQUARED; index++) {
-                $('.tiles-grid').append($('<div>', {id: index, class: 'tile'}))
-                var overlay_class = 'empty-space'
-                if (index < 16)  {overlay_class = 'token user'}
-                if (index >= 48) {overlay_class = 'token opponent'}
-                $('.tiles-grid').children().last().append($('<div>', {class: overlay_class}))
+        // Removes "highlight" from the class name of all tiles
+        function clear_highlights() {
+            for (let row = 0; row < SIZE; row++) {
+                for (let col = 0; col < SIZE; col++) {
+                    $game_tiles[row][col].css("box-shadow", "none")
+                }
             }
         }
 
-        function remove_trapped_tokens() {
-            var trapped_indexes_set = new Set();
-            var $tiles = $('.tiles-grid').children();
+        // Adds "highlight" to the class name of the tile/s
+        function highlight_moves(moves) {
+            for (move of moves) {
+                $game_tiles[move[0]][move[1]].css("box-shadow", "inset 0 0 11px 11px #F6F3F1")
+            }
+        }
 
-            for (let i = 0; i < SIZE_SQUARED; i++) {
-                if (i > SIZE && i < (SIZE_SQUARED - SIZE)) {
-                    if (i % SIZE >= 1 && i % SIZE < SIZE-1) {
+        // Setting up the game-container with tiles and tokens
+        function setup_game_board() {
+            for (let row = 0; row < SIZE; row++) {
+                for (let col = 0; col < SIZE; col++) {
+                    $('.tiles-grid').append($('<div>', {row: row, 
+                                                        col: col, 
+                                                        class: 'tile'}))
+                    let piece_class = no_piece_class;
+                    if (row < NUM_SETUP_ROWS) {piece_class = 'piece opponent'}
+                    else if (row >= (SIZE - NUM_SETUP_ROWS)) {piece_class = 'piece user'}
+                
+                    var $piece = $('.tiles-grid').children().last()
+                                    .append($('<div>', {class: piece_class,
+                                                        draggable: true}
+                                              )) 
+                                        
+                    $game_tiles[row][col] = $($piece);
+                }
+            }
+        }
 
-                        var left  = $tiles[i-1].children[0].className.toString();
-                        var mid   = $tiles[i].children[0].className.toString();
-                        var right = $tiles[i+1].children[0].className.toString();
-                        var bot   = $tiles[i-SIZE].children[0].className.toString();
-                        var top   = $tiles[i+SIZE].children[0].className.toString();
+        // Returns the indexes of all valid moves from the given location
+        function get_all_valid_moves(row, col) {
 
-                        var row_line = (left === right) && 
-                                       (left !== mid) && 
-                                       (left !== 'empty-space') &&
-                                       (mid !== 'empty-space');
-                        
-                        var col_line = (bot === top) && 
-                                       (bot !== mid) && 
-                                       (bot !== 'empty-space') &&
-                                       (mid !== 'empty-space');
+            var valid_moves  = new Set();
+            var translations = new Array([1, 0], [-1,0], [0,-1], [0, 1])
+            for (trans of translations) { 
+                let r = row;
+                let c = col;
+
+                do {
+                    valid_moves.add([r, c]);
+                    r += trans[0];
+                    c += trans[1]; 
+                    if (r >= SIZE || c >= SIZE || r < 0 || c < 0) {
+                        break;
+                    }
+                }
+                
+                while ($($game_tiles[r][c]).children()[0].className === no_piece_class);
+
+            }
+            return Array.from(valid_moves);
+        }
+
+        // Iterates through the game_tiles array, changing the class of any 
+        // piece with two 'enemy' pieces either (1) directly above and below 
+        // or (2) directly to the left and right
+        function remove_trapped_pieces() {
+            var trapped_locations = new Set();
+
+            for (let row = 1; row < SIZE-1; row++) {
+                for (let col = 1; col < SIZE-1; col++) {
+
+                    let left   = $game_tiles[row][col-1].children()[0].className.toString();
+                    let centre = $game_tiles[row][col].children()[0].className.toString();
+                    let right  = $game_tiles[row][col+1].children()[0].className.toString();
+                    let above  = $game_tiles[row-1][col].children()[0].className.toString();
+                    let below  = $game_tiles[row+1][col].children()[0].className.toString();
+
+
+                    let row_line = (left === right) && 
+                                    (left !== centre) && 
+                                    (left !== no_piece_class) &&
+                                    (centre !== no_piece_class);
+                    
+                    let col_line = (below === above) && 
+                                    (below !== centre) && 
+                                    (below !== no_piece_class) &&
+                                    (centre !== no_piece_class);
 
                         if (row_line || col_line) {
-                            trapped_indexes_set.add(i);
-                        }                        
-                        
-
-                    }
+                            trapped_locations.add(Array(row, col));
+                        }                                
                 }
             }
-            for (index of Array.from(trapped_indexes_set)) {
-                if (index === focused_tile_index) {
-                    focused_tile_index = null;
-                    focused_tile_moves  = null;
-                }
-                $('.tiles-grid').children()[index].replaceChildren();
-                $('.tiles-grid').get(index).append($('<div>', {class: 'empty-space'}))
 
-
-            }
-
-
-        }
-
-        function move_token(start_index, dest_index) {
-
-            let sound_sfx = new Audio("./move_sfx.wav");
-            sound_sfx.play();
-
-            var $start_tile = $('.tiles-grid > #' + start_index);
-            var $dest_tile  = $('.tiles-grid > #' + dest_index);
-
-            var $start_overlay = $start_tile.children().detach();
-            var $dest_overlay  = $dest_tile.children().detach();
-
-            $start_tile.append($dest_overlay);
-            $dest_tile.append($start_overlay);
-        }
-
-
-        function remove_all_highlights() {
-            let tiles = Array.from($('.tiles-grid').children());
-            for (i in tiles) {
-                let tile = tiles[i];
-                if (tile.classList.contains('highlight')) {
-                    tile.classList.remove('highlight');
+            if (trapped_locations.size > 0) {
+                for (loc of Array.from(trapped_locations)) {
+                    var row = loc[0];
+                    var col = loc[1];
+                    $game_tiles[row][col].empty();
+                    $game_tiles[row][col].append($('<div>', {class: 'empty-space'}))
                 }
             }
         }
 
-        function highlight_moves(tile_index, move_indexes) {
-            let tiles = $('.tiles-grid').children();
-            tiles[tile_index].classList.add('highlight');
-            for (i in move_indexes) {
-                var index = move_indexes[i];
-                tiles[index].classList.add('highlight');
-            }
+        // Moves a piece by changing the class of the target piece div 
+        // to "no_piece_class" and setting the destination piece div 
+        // class as either "user-piece" or "opponent-piece" 
+        function move_piece($start_piece, $dest_piece) {
+            let movement_sound = new Audio("./piece_moving.wav");
+            movement_sound.play();
+
+            var $start_overlay = $start_piece.children().detach();
+            var $dest_overlay  = $dest_piece.children().detach();
+            $start_piece.append($dest_overlay);
+            $dest_piece.append($start_overlay);
         }
 
 
-        // Returns the indexes of all valid moves from the given tile
-        function get_valid_move_indexes(tile_index) {
+        function tile_click_handler () {
+            var is_empty_space = this.children[0].className === no_piece_class;
+            let row = parseInt(this.attributes.row.value);
+            let col = parseInt(this.attributes.col.value);
 
-            var tiles          = $('.tiles-grid').children();
-            var valid_indexes  = new Set();
-            var col_moves      = new Array(SIZE, -SIZE); 
-            var row_moves      = new Array(-1, 1); 
-    
-            for (i in col_moves) {
-                let move = parseInt(col_moves[i]);
-                var index = tile_index + move;
-
-                while (index >= 0 && index < SIZE_SQUARED) {
-                    if (tiles[index].children[0].classList.contains('empty-space')) {
-                        valid_indexes.add(index);
-                    }
-                    else {
-                        break;
-                    }
-                    index += move;
+            if ($focused_tile === null) {
+                if (!is_empty_space) {
+                    $focused_tile = $(this);
+                    focused_moves = get_all_valid_moves(row, col);
+                    highlight_moves(focused_moves);
                 }
             }
-
-            for (i in row_moves) {
-                let move = parseInt(row_moves[i]);
-                var index = tile_index + move;
-
-                var lower_bound = index - (index % SIZE);
-                var upper_bound = lower_bound + SIZE;
-                while (index >= lower_bound && index < upper_bound) {
-                    if (tiles[index].children[0].classList.contains('empty-space')) {
-                        valid_indexes.add(index);
-                    }
-                    else {
-                        break;
-                    }
-                    index += move;
-                }
-            }
-            return Array.from(valid_indexes);
-        }
-
-
-        $(document).ready(function() {
-            setup_game_board();
-
-            $('.tile').on('click', function() {
-                var target_tile_index = parseInt(this.id);
-                let tile = $('.tiles-grid').children()[target_tile_index];
-                var is_empty_space = tile.children[0].classList.contains('empty-space');
-
-                if (focused_tile_index == null) {
-                    if (!is_empty_space) {
-                        focused_tile_index = target_tile_index;
-                        // focused_tile_moves = get_valid_move_indexes(focused_tile_index);
-                        // highlight_moves(focused_tile_index, focused_tile_moves);
-                    }
+            else {
+                clear_highlights();
+                if (!is_empty_space) {
+                    focused_moves = get_all_valid_moves(row, col);
+                    $focused_tile = $(this);
+                    highlight_moves(focused_moves);
+                    
                 }
                 else {
-                    remove_all_highlights();
-                    focused_tile_moves = get_valid_move_indexes(focused_tile_index);
-                    if (!is_empty_space) {
-                        focused_tile_index = target_tile_index;
-                        // highlight_moves(target_tile_index, focused_tile_moves);
-                    }
-                    else {
-                        if (focused_tile_moves.includes(target_tile_index)) {
-                            move_token(focused_tile_index, target_tile_index);
-                            remove_trapped_tokens();
-                            focused_tile_index = null;
-                        }
+                    if (true) {
+                        move_piece($focused_tile, $(this));
+                        remove_trapped_pieces();
+                        $focused_tile = null;
                     }
                 }
+            }            
+        };
 
-                
-            });
-        });
+        // var x = $('.tile').find(`[row='${"2"}'][col='${"2"}']`);
+        // console.log(x);
 
-    </script>
+        setup_game_board();
+        $('.tile').on('click', tile_click_handler);
+
+      
+    });
+</script>
 </head>
 <body>
     <div class="game-container">

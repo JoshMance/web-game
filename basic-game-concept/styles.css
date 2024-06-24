@@ -51,7 +51,7 @@ body {
     }
 }
 
-.token {
+.piece {
     position: relative;
     padding: inherit;
     border-radius: 50%;
