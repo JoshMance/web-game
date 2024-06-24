@@ -74,7 +74,6 @@
                         break;
                     }
                 }
-                
                 while ($($game_tiles[r][c]).children()[0].className === no_piece_class);
 
             }
@@ -113,27 +112,51 @@
                 }
             }
 
-            if (trapped_locations.size > 0) {
-                for (loc of Array.from(trapped_locations)) {
-                    var row = loc[0];
-                    var col = loc[1];
-                    $game_tiles[row][col].empty();
-                    $game_tiles[row][col].append($('<div>', {class: 'empty-space'}))
+            setTimeout(() => {            
+                if (trapped_locations.size > 0) {
+                    for (loc of Array.from(trapped_locations)) {
+                        var row = loc[0];
+                        var col = loc[1];
+
+                        $game_tiles[row][col].empty();
+                        $game_tiles[row][col].append($('<div>', {class: 'empty-space'}))
+                    }
                 }
-            }
+            }, "500");
         }
 
         // Moves a piece by changing the class of the target piece div 
         // to "no_piece_class" and setting the destination piece div 
-        // class as either "user-piece" or "opponent-piece" 
-        function move_piece($start_piece, $dest_piece) {
+        // class as either "piece user" or "piece opponent" 
+        function move_piece($start_tile, $dest_tile) {
             let movement_sound = new Audio("./piece_moving.wav");
             movement_sound.play();
 
-            var $start_overlay = $start_piece.children().detach();
-            var $dest_overlay  = $dest_piece.children().detach();
-            $start_piece.append($dest_overlay);
-            $dest_piece.append($start_overlay);
+            var $temp_piece = $start_tile.children().clone(false)
+
+            var $start_children = $start_tile.children().detach();
+            var $dest_children  = $dest_tile.children().detach();
+
+            $('.tiles-grid').append($temp_piece);
+            
+            $($temp_piece).css({
+                        "left":$start_tile[0].offsetLeft + 20, 
+                        "top":$start_tile[0].offsetTop + 20
+                        });
+
+            $($temp_piece).css("position", "absolute").animate({
+                left: $dest_tile[0].offsetLeft + 20,
+                top:  $dest_tile[0].offsetTop + 20,
+            });
+
+            $start_tile.append($dest_children);
+            $dest_tile.append($start_children);
+            $dest_tile.children().css({'visibility': 'hidden'});
+
+            setTimeout(() => {
+                $('.tiles-grid').children().last().remove();
+                $dest_tile.children().css({'visibility': 'visible'});
+            }, "400");
         }
 
 
@@ -158,21 +181,24 @@
                     
                 }
                 else {
-                    if (true) {
-                        move_piece($focused_tile, $(this));
-                        remove_trapped_pieces();
-                        $focused_tile = null;
+                    for (move of focused_moves) {
+                        if (row === move[0] && col === move[1]) {
+                            move_piece($focused_tile, $(this));
+                            remove_trapped_pieces();
+                            $focused_tile = null;
+                            break;
+                        }
+                    }
+                    if ($focused_tile != null) {
+                        highlight_moves(focused_moves);
                     }
                 }
             }            
         };
 
-        // var x = $('.tile').find(`[row='${"2"}'][col='${"2"}']`);
-        // console.log(x);
 
         setup_game_board();
         $('.tile').on('click', tile_click_handler);
-
       
     });
 </script>
