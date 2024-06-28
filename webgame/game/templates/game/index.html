@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/css/styles.css">
+<link rel="stylesheet" href="/static/css/game_styles.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>   
     $(document).ready(function() {
@@ -142,8 +142,8 @@
         // to "no_piece_class" and setting the destination piece div 
         // class as either "piece user" or "piece opponent" 
         function move_piece($start_tile, $dest_tile) {
-            let movement_sound = new Audio("/static/sounds/piece_moving.wav");
-            movement_sound.play();
+            // let movement_sound = new Audio("/static/sounds/piece_moving.wav");
+            // movement_sound.play();
 
             var $temp_piece = $start_tile.children().clone(false)
 
@@ -153,13 +153,13 @@
             $('.tiles-grid').append($temp_piece);
             
             $($temp_piece).css({
-                        "left":$start_tile[0].offsetLeft + 20, 
-                        "top":$start_tile[0].offsetTop + 20
+                        "left":$start_tile[0].offsetLeft + 22, 
+                        "top":$start_tile[0].offsetTop + 22
                         });
 
             $($temp_piece).css("position", "absolute").animate({
-                left: $dest_tile[0].offsetLeft + 22,
-                top:  $dest_tile[0].offsetTop + 22,
+                left: $dest_tile[0].offsetLeft + 16,
+                top:  $dest_tile[0].offsetTop + 16,
             }, 150, 'swing');
 
             $start_tile.append($dest_children);
