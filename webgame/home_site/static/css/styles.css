@@ -1,19 +1,18 @@
 body {
     padding-top: 5rem;
-    background-color:#121212 !important;
+    background-color: #121212  !important;
   }
 
-img:hover {
+
+img {
+  /* border-right: 2px solid #FFFFFF !important; */
+}
+
+/* img:hover {
   -webkit-filter: blur(2px);
   filter        : blur(2px);  
-}
+} */
 
-
-.splash-content {
-  padding: 3rem 1.5rem;
-  text-align: center;
-  color: #f8f7fd;
-}
 
 .navbar {
   font-size: 1.2rem !important;
@@ -22,19 +21,49 @@ img:hover {
 
 .navbar-brand {
   font-size: 1.2rem !important;
-  color: #f8f7fd;
+  color: #272621;
+  background-color: #0A84A2;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .navbar-dark {
-  background-color: #10365c !important;
+  background-color: #0C0B0B;
 }
 
 .nav-item {
   border-radius: 10px;
+
 }
 
-#splash-page-content {
-  color: #f8f7fd !important;
+#splash-page-cards {
+
+}
+
+#splash-card-content {
   background-color: #121212 !important;
+}
+
+#play-online {
+  font-size: 1.7rem !important;
+  padding-left: 1.5vw;
+  padding-right: 1.5vw;
+  margin-right: 2vw;
+  color: #f8f7fd;
+  background-color: #0A84A2;
+}
+
+#play-computer {
+  font-size: 1.7rem !important;
+  padding-left: 1.5vw;
+  padding-right: 1.5vw;
+  margin-right: 2vw;
+  color: #f8f7fd;
+  background-color: #0A84A220;
+}
+
+small {
+  font-size: 1rem !important;
+  display: block;
 }
   

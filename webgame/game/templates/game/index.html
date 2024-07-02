@@ -7,10 +7,11 @@
 <script>   
     $(document).ready(function() {
         
-        var SIZE            = 10;             // The grid size
-        var SIZE_SQUARED    = 100;
+        var SIZE            = 5;             // The grid size
+        var SIZE_SQUARED    = 25;
         var NUM_SETUP_ROWS  = 2;
-        var GAME_TIME       = 3600;
+        var GAME_TIME       = 300;
+        var placement_stage = true;
         var $focused_tile   = null;          // A reference to the most recent
                                             // tile selected by the user 
         var focused_moves   = null;          // A list of the 
@@ -20,9 +21,9 @@
                             .fill()          // each game tile jquery object
                             .map(() => Array(SIZE).fill(null));
 
-        var is_user_turn        = true;
-        var user_num_pieces     = SIZE*NUM_SETUP_ROWS;
-        var opponent_num_pieces = SIZE*NUM_SETUP_ROWS;
+        var is_user_turn    = true;
+        var user_num_pieces     = 0;
+        var opponent_num_pieces = 0;
 
         // Removes "highlight" from the class name of all tiles
         function clear_highlights() {
@@ -42,21 +43,13 @@
 
         // Setting up the game-container with tiles and tokens
         function setup_game_board() {
-            user_num_pieces     = SIZE*NUM_SETUP_ROWS;
-            opponent_num_pieces = SIZE*NUM_SETUP_ROWS;
             for (let row = 0; row < SIZE; row++) {
                 for (let col = 0; col < SIZE; col++) {
                     $('.tiles-grid').append($('<div>', {row: row, 
                                                         col: col, 
                                                         class: 'tile'}))
-                    let piece_class = no_piece_class;
-                    if (row < NUM_SETUP_ROWS) {piece_class = 'piece opponent'}
-                    else if (row >= (SIZE - NUM_SETUP_ROWS)) {piece_class = 'piece user'}
-                
                     var $piece = $('.tiles-grid').children().last()
-                                    .append($('<div>', {class: piece_class}
-                                              )) 
-                                        
+                                    .append($('<div>', {class: no_piece_class}))           
                     $game_tiles[row][col] = $($piece);
                 }
             }
@@ -185,43 +178,59 @@
 
 
         function tile_click_handler () {
-            console.log(user_num_pieces, opponent_num_pieces)
 
             var is_empty_space = this.children[0].className === no_piece_class;
-            let row = parseInt(this.attributes.row.value);
-            let col = parseInt(this.attributes.col.value);
+            var row = parseInt(this.attributes.row.value);
+            var col = parseInt(this.attributes.col.value);
 
-            if ($focused_tile === null) {
-                if (!is_empty_space) {
-                    $focused_tile = $(this);
-                    focused_moves = get_all_valid_moves(row, col);
-                    highlight_moves(focused_moves);
-                }
+            if (placement_stage) {
+                var piece_class = 'piece ' + (is_user_turn ? 'user' : 'opponent');
+                console.log(piece_class)
+                var $piece = $(this).children().replaceWith($('<div>', {class: piece_class}))
+                if (is_user_turn) {user_num_pieces++;}
+                else {opponent_num_pieces++;}
+                is_user_turn = !is_user_turn;
+                
+                if ((user_num_pieces + opponent_num_pieces) == SIZE_SQUARED-1) {
+                    placement_stage = false;
+                } 
             }
             else {
-                clear_highlights();
-                if (!is_empty_space) {
-                    focused_moves = get_all_valid_moves(row, col);
-                    $focused_tile = $(this);
-                    highlight_moves(focused_moves);
-                    
-                }
-                else {
-                    for (move of focused_moves) {
-                        if (row === move[0] && col === move[1]) {
-                            move_piece($focused_tile, $(this));
-                            remove_trapped_pieces();
 
-                            $focused_tile = null;
-                            break;
-                        }
-                    }
-                    if ($focused_tile != null) {
+                if ($focused_tile === null) {
+                    if (!is_empty_space) {
+                        $focused_tile = $(this);
+                        focused_moves = get_all_valid_moves(row, col);
                         highlight_moves(focused_moves);
                     }
                 }
-            }     
-        };
+                else {
+                    clear_highlights();
+                    if (!is_empty_space) {
+                        focused_moves = get_all_valid_moves(row, col);
+                        $focused_tile = $(this);
+                        highlight_moves(focused_moves);
+                        
+                    }
+                    else {
+                        for (move of focused_moves) {
+                            if (row === move[0] && col === move[1]) {
+                                move_piece($focused_tile, $(this));
+                                remove_trapped_pieces();
+
+                                $focused_tile = null;
+                                break;
+                            }
+                        }
+                        if ($focused_tile != null) {
+                            highlight_moves(focused_moves);
+                        }
+                    }
+                }     
+            };
+        }
+
+            
 
         function play_again_click_handler() {
             $('.results-modal').toggle(false);
@@ -264,13 +273,15 @@
                     }
                 }
 
-                if (user_clock <= 0 || opponent_clock <= 0) {
-                    show_results_modal(true, user_clock > opponent_clock)
-                    game_over = true;
-                }
-                else if (user_num_pieces <= 0 || opponent_num_pieces <= 0) {
-                    show_results_modal(false, user_num_pieces >= opponent_num_pieces)
-                    game_over = true;
+                if (!placement_stage) {
+                    if (user_clock <= 0 || opponent_clock <= 0) {
+                        show_results_modal(true, user_clock > opponent_clock)
+                        game_over = true;
+                    }
+                    else if (user_num_pieces <= 0 || opponent_num_pieces <= 0) {
+                        show_results_modal(false, user_num_pieces >= opponent_num_pieces)
+                        game_over = true;
+                    }
                 }
                 else if (is_user_turn) {
                     user_clock -= 1;

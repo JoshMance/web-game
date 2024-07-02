@@ -98,7 +98,7 @@ body {
 .tiles-grid {
     display: inline-grid;
     position: relative;
-    grid-template-columns: repeat(10, auto);
+    grid-template-columns: repeat(5, auto);
     background-color: #DEAE8B;
     background-image: url('/static/images/sandpaper.png');
     padding: 1.5vh;
